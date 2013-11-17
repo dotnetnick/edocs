@@ -37,7 +37,8 @@ namespace DMApiHelpers {
         FullAccess = View | Edit | ContentView | ContentRetrieve | ContentEdit | ContentCopy | Delete | AccessControl
     }
 
-    public struct TrusteeInfo {
+    public class TrusteeInfo {
+        public TrusteeInfo() { }
         public TrusteeInfo(string trustee, TrusteeType type, AccessRights rights) {
             Trustee = trustee;
             TrusteeType = type;
@@ -53,10 +54,16 @@ namespace DMApiHelpers {
                 var t = (TrusteeInfo)obj;
                 
                 bool namesEqual = (string.Compare(t.Trustee, this.Trustee, true) == 0);
-                bool typesEqual = t.TrusteeType == TrusteeType.Unknown || this.TrusteeType == TrusteeType.Unknown || t.TrusteeType == this.TrusteeType;
+                bool typesEqual = t.TrusteeType == TrusteeType.Unknown 
+                    || this.TrusteeType == TrusteeType.Unknown 
+                    || t.TrusteeType == this.TrusteeType;
                 return namesEqual && typesEqual && t.AccessRights == this.AccessRights;
             }
             return base.Equals(obj);
+        }
+
+        public override int GetHashCode() {
+            return base.GetHashCode();
         }
     }
 }

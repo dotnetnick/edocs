@@ -154,7 +154,8 @@ namespace DMApiHelpers {
             doc.SetObjectType(ObjectFormDefaultProfile);
             doc.SetProperty(PropertyTargetLibrary, Library);
             doc.SetProperty(PropertyObjectIdentifier, docInfo.DocNumber);
-            doc.SetProperty(PropertyVersionID, docInfo.VersionID);
+            if(docInfo.VersionID > 0)
+                doc.SetProperty(PropertyVersionID, docInfo.VersionID);
             doc.SetProperty("%STATUS", "%UNLOCK");
 
             int result = doc.Update();
@@ -304,7 +305,7 @@ namespace DMApiHelpers {
 
             result = doc.UpdateTrustees();
             if(result != S_OK || doc.ErrNumber != 0)
-                throw new DMApiException("UpdateTrustees failed.", doc.ErrNumber, doc.ErrDescription);
+                throw new DMApiException(string.Format("UpdateTrustees failed for document# {0}.", docNumber), doc.ErrNumber, doc.ErrDescription);
             
             result = doc.Update();
             if(result != S_OK || doc.ErrNumber != 0)
