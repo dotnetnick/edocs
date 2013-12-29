@@ -323,7 +323,8 @@ namespace EDocsLog {
             // DOCSSQL: [105277B8] ODBCHandle::IssueCommand(): Statement returned results
             // DOCSSQL: [00B97940] ODBCHandle::IssueCommand(): Statement returned results.  32 rows per fetch.  11232 bytes allocated for result sets.
             // DOCSSQL: [10528070] ODBCHandle::ClearResults(): 23 row(s) fetched
-            // DOCSSQL: [00B97940] ODBCHandle::BatchExecute(): Batched command #1 affected 1 row(s)            return @"^DOCSSQL: \[(?<key>[0-9A-F]{8})\] ODBCHandle::.+$";
+            // DOCSSQL: [00B97940] ODBCHandle::BatchExecute(): Batched command #1 affected 1 row(s)
+            return @"^DOCSSQL: \[(?<key>[0-9A-F]{8})\] ODBCHandle::.+$";
         }
         protected override RuleResult ProcessMatch(Match match) {
             return CreateResult(LineType.Body, match.Groups["key"].Value);
