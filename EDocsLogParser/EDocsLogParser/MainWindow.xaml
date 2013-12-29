@@ -1,0 +1,11 @@
+﻿<Window x:Class="EDocsLog.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="eDOCS DM Server Log Parser" Height="156" Width="525">
+    <Grid>
+        <Button x:Name="btnStart" Content="Start" HorizontalAlignment="Left" Margin="107,10,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click" IsEnabled="False"/>
+        <ProgressBar x:Name="progressMain" HorizontalAlignment="Left" Height="13" Margin="10,68,0,0" VerticalAlignment="Top" Width="497"/>
+        <Button Content="_Directory..." HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnFolder_Click"/>
+        <Label x:Name="lblFolder" Content="" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top" Width="497"/>
+    </Grid>
+</Window>
