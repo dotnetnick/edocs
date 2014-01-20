@@ -55,9 +55,29 @@ namespace EDocsLog {
             return Directory.EnumerateFiles(InputPath, "*.log", SearchOption.TopDirectoryOnly).ToArray();
         }
 
+        private string StageToString(ParserProgressStage stage) {
+            switch(stage) {
+                case ParserProgressStage.CreatingChunks: 
+                    return "Marking event blocks";
+                case ParserProgressStage.ParsingChunks:
+                    return "Parsing event blocks";
+                case ParserProgressStage.Formatting:
+                    return "Formatting events";
+                default:
+                    return stage.ToString();
+            }
+        }
+
         public void ParseLog(string fileName) {
+            string shortFileName = System.IO.Path.GetFileName(fileName);
+
             var log = new LogFile { FileName = fileName };
             var parser = new LogParser { Log = log };
+            parser.Progress += (s, e) => {
+                string stage = StageToString(e.Stage);
+                string msg = string.Format("Processing {0}   {1}: {2}%", shortFileName, stage, e.Percentage);
+                this.Dispatcher.BeginInvoke(new System.Windows.Forms.MethodInvoker(() => lblStatus.Text = msg));
+            };
             parser.Parse();
 
             string file = System.IO.Path.GetFileNameWithoutExtension(fileName);
@@ -71,6 +91,7 @@ namespace EDocsLog {
 
         private void btnStart_Click(object sender, RoutedEventArgs e) {
             files = LoadLogFiles();
+            btnFolder.IsEnabled = false;
             btnStart.IsEnabled = false;
             progressMain.Maximum = files.Length;
             progressMain.Value = 0;
@@ -92,6 +113,8 @@ namespace EDocsLog {
         }
 
         private void worker_RunWorkerCompleted(object s, RunWorkerCompletedEventArgs args) {
+            lblStatus.Text = string.Empty;
+            btnFolder.IsEnabled = true;
             btnStart.IsEnabled = true;
             MessageBox.Show("Done.");
         }
@@ -100,7 +123,7 @@ namespace EDocsLog {
             var dlg = new System.Windows.Forms.FolderBrowserDialog();
             if(dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 InputPath = dlg.SelectedPath;
-                lblFolder.Content = InputPath;
+                lblFolder.Text = InputPath;
                 btnStart.IsEnabled = true;
             }
         }

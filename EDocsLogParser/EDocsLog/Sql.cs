@@ -18,7 +18,7 @@
 */
 #endregion Copyright (c) 2013 Nick Khorin
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic;        
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -46,17 +46,17 @@ namespace EDocsLog {
             ev.ConnectionIndex = Convert.ToInt32(raw.Header.Values[ValueKeys.Index]);
             ev.IsNew = raw.Header.Values[ValueKeys.IsNew];
 
-            // TODO fucking edocs... SqlBodyRule is sometimes missing...
+            // TODO: fucking edocs... Body is sometimes missing...
             SqlQueryEvent query = new SqlQueryEvent();
             foreach(var bodyLine in raw.Body) {
                 if(bodyLine.RuleType == typeof(SqlBodyRule) || bodyLine.RuleType == typeof(SqlBodyNotifyRule)) {
                     query = new SqlQueryEvent();
                     query.Time = bodyLine.Values[ValueKeys.Time];
                     ev.Queries.Add(query);
-                    //TODO line index
+                    //TODO: line index
                 }
                 /*else if(bodyLine.RuleType == typeof(SqlStatementRequiredRule.AutoCommitLineRule) {
-                    query.AutoCommit = bodyLine.Content; // TODO On or Off only
+                    query.AutoCommit = bodyLine.Content; // TODO: On or Off only
                 }*/
                 else if(bodyLine.RuleType == typeof(SqlStatementRequiredRule.StatementLineRule))
                     query.Command = bodyLine.Content;
@@ -105,7 +105,8 @@ namespace EDocsLog {
         public string DurationReadItem { get; set; }
         [XmlAttribute("issueCommandDuration")]
         public string DurationIssueCommand { get; set; }
-        //TODO RowCount
+        //TODO: RowCount
+        //TODO: Error
     }
 
 

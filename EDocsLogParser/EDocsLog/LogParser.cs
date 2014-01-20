@@ -53,7 +53,7 @@ namespace EDocsLog {
         public LogFile Log { get; set; }
 
         public string GetLine(int i) {
-            lock(_lockLog)
+            //lock(_lockLog)
                 return Log.Lines[i];
         }
 
@@ -69,6 +69,17 @@ namespace EDocsLog {
             return true;
         }
 
+        public int ProgressReportStep = 5;
+        int ParseChunkCounter = 0;
+        int XPerCents;
+
+        public event ParserProgressEventHandler Progress;
+        
+        protected void RaiseProgress(ParserProgressStage stage, int percent) {
+            if(Progress != null)
+                Progress(this, new ParserProgressEventArgs(stage, percent));
+        }
+
         public void CleanUp() {
             IncompleteChunks.Clear();
             Chunks.Clear();
@@ -77,7 +88,11 @@ namespace EDocsLog {
         }
 
         private void CreateChunks() {
+            XPerCents = Log.Lines.Length * ProgressReportStep / 100;
             for(int i = 0; i < Log.Lines.Length; i++) {
+                if(XPerCents > 0 && i % XPerCents == 0)
+                    RaiseProgress(ParserProgressStage.CreatingChunks, i * ProgressReportStep / XPerCents);
+
                 string line = GetLine(i);
                 if(string.IsNullOrWhiteSpace(line)) 
                     continue;
@@ -125,6 +140,9 @@ namespace EDocsLog {
         }
 
         private void ParseChunks() {
+            ParseChunkCounter = 0;
+            XPerCents = Chunks.Count * ProgressReportStep / 100;
+
             //Chunks.AsParallel().ForAll(ParseChunk);
             Parallel.ForEach(Chunks, ParseChunk);
             Debug.Assert(Chunks.Count == RawEvents.Count, 
@@ -137,6 +155,9 @@ namespace EDocsLog {
         private readonly object _lockLog = new object();
 
         private void ParseChunk(RawEvent ev) {
+            if(XPerCents > 0 && ++ParseChunkCounter % XPerCents == 0)
+                RaiseProgress(ParserProgressStage.ParsingChunks, ParseChunkCounter * ProgressReportStep / XPerCents);
+            
             int processedBodyLines;
             for(int i = ev.Header.Index + 1; i < ev.Footer.Index - 1; i++) {
                 string line = GetLine(i);
@@ -178,7 +199,13 @@ namespace EDocsLog {
         }
 
         private void FormatEvents() {
+            int counter = 0;
+            XPerCents = RawEvents.Count * ProgressReportStep / 100;
+
             foreach(var raw in RawEvents) {
+                if(XPerCents > 0 && ++counter % XPerCents == 0)
+                    RaiseProgress(ParserProgressStage.Formatting, counter * ProgressReportStep / XPerCents);
+
                 switch(raw.Type) {
                     case EventType.Sql:
                         Events.Add(SqlEventFactory.GetEvent(raw));
@@ -189,10 +216,10 @@ namespace EDocsLog {
 
         private BlockRuleResult ProcessRequiredBodyBlock(int index, RuleResult result) {
             string[] blockLines;
-            lock(_lockLog) {
+            //lock(_lockLog) {
                 int take = Math.Min(result.RequiredBlockRule.MaxBlockSize, Log.Lines.Length - index - 1);
                 blockLines = Log.Lines.Skip(index + 1).Take(take).ToArray();
-            }
+            //}
             return result.RequiredBlockRule.Apply(blockLines);
         }
     }
@@ -211,5 +238,19 @@ namespace EDocsLog {
         public string Content;
         public Type RuleType;
         public readonly Dictionary<string, string> Values;
+    }
+
+    public delegate void ParserProgressEventHandler(object sender, ParserProgressEventArgs e);
+
+    public enum ParserProgressStage { Unknown, CreatingChunks, ParsingChunks, Formatting, Done }
+
+    public class ParserProgressEventArgs : EventArgs {
+        public int Percentage { get; private set; }
+        public ParserProgressStage Stage { get; private set; }
+
+        public ParserProgressEventArgs(ParserProgressStage stage, int percent) {
+            Stage = stage;
+            Percentage = percent;
+        }
     }
 }
