@@ -166,5 +166,69 @@ namespace EDocsLogTests {
             Assert.AreEqual(null, ev.Queries[8].Command);
             Assert.AreEqual(null, ev.Queries[9].Command);
         }
+
+        [TestMethod]
+        public void TestParseOutsideOfPool() {
+            string file = TestHelper.TestLogPath + "OutsideOfPool.log";
+            var log = new LogFile { FileName = file };
+            var parser = new LogParser { Log = log };
+            parser.Parse();
+
+            Assert.AreEqual(1, parser.RawEvents.Count);
+            Assert.AreEqual("0.000", parser.RawEvents[0].Body[4].Values[ValueKeys.Duration]);
+            Assert.AreEqual("0.015", parser.RawEvents[0].Body[6].Values[ValueKeys.Duration]);
+            Assert.AreEqual(1, parser.Events.Count);
+            Assert.IsInstanceOfType(parser.Events[0], typeof(SqlEvent));
+            var ev = (SqlEvent)parser.Events[0];
+            Assert.AreEqual(1, ev.Queries.Count);
+            var expectedCommand = @"SELECT DOCSADM.NETWORK_ALIASES.PERSONORGROUP, PERSONORGR00.USER_ID, DOCSADM.NETWORK_ALIASES.NETWORK_ID, DOCSADM.NETWORK_ALIASES.NETWORK_TYPE FROM DOCSADM.NETWORK_ALIASES,DOCSADM.PEOPLE PERSONORGR00 WHERE DOCSADM.NETWORK_ALIASES.PERSONORGROUP=PERSONORGR00.SYSTEM_ID(+) AND DOCSADM.NETWORK_ALIASES.NETWORK_ID='HELLO\KITTY' AND DOCSADM.NETWORK_ALIASES.NETWORK_TYPE=8";
+            var expectedRead = "0.000";
+            var expectedIssue = "0.015";
+            Assert.AreEqual(expectedCommand, ev.Queries[0].Command);
+            Assert.AreEqual(expectedRead, ev.Queries[0].DurationReadItem);
+            Assert.AreEqual(expectedIssue, ev.Queries[0].DurationIssueCommand);
+        }
+
+        [TestMethod]
+        public void TestParseWithSmartFooter() {
+            string file = TestHelper.TestLogPath + "SmartFooter.log";
+            var log = new LogFile { FileName = file };
+            var parser = new LogParser { Log = log };
+            parser.Parse();
+
+            Assert.AreEqual(1, parser.RawEvents.Count);
+            Assert.AreEqual(1, parser.Events.Count);
+            Assert.IsInstanceOfType(parser.Events[0], typeof(SqlEvent));
+            var ev = (SqlEvent)parser.Events[0];
+            Assert.AreEqual(7, ev.Queries.Count);
+        }
+
+        [TestMethod]
+        public void TestParseWithSmartFooter2() {
+            string file = TestHelper.TestLogPath + "SmartFooter2.log";
+            var log = new LogFile { FileName = file };
+            var parser = new LogParser { Log = log };
+            parser.Parse();
+
+            Assert.AreEqual(1, parser.RawEvents.Count);
+            Assert.AreEqual(1, parser.Events.Count);
+            Assert.IsInstanceOfType(parser.Events[0], typeof(SqlEvent));
+            var ev = (SqlEvent)parser.Events[0];
+            Assert.AreEqual(8, ev.Queries.Count);
+        }
+
+        [TestMethod]
+        public void TestParseWithHeaderInMiddle() {
+            string file = TestHelper.TestLogPath + "HeaderInMiddle.log";
+            var log = new LogFile { FileName = file };
+            var parser = new LogParser { Log = log };
+            parser.Parse();
+
+            Assert.AreEqual(1, parser.RawEvents.Count);
+            Assert.AreEqual(1, parser.Events.Count);
+            Assert.IsInstanceOfType(parser.Events[0], typeof(SqlEvent));
+            var ev = (SqlEvent)parser.Events[0];
+            Assert.AreEqual(0, ev.Queries.Count);
+        }
     }
 }

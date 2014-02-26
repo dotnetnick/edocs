@@ -58,11 +58,9 @@ namespace EDocsLog {
             if(ev is SqlEvent) {
                 var sql = (SqlEvent)ev;
                 //fileName = sql.ConnectionIndex
-                
+
             }
         }
-        
-
     }
 
 

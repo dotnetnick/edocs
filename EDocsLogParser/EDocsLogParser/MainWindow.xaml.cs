@@ -120,7 +120,7 @@ namespace EDocsLog {
         }
 
         private void btnFolder_Click(object sender, RoutedEventArgs e) {
-            var dlg = new System.Windows.Forms.FolderBrowserDialog();
+            var dlg = new System.Windows.Forms.FolderBrowserDialog() { SelectedPath = InputPath };
             if(dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 InputPath = dlg.SelectedPath;
                 lblFolder.Text = InputPath;

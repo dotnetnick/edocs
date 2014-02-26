@@ -24,6 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using EDocsLog.Utils;
 
 namespace EDocsLog {
     public static class SqlEventFactory {
@@ -43,7 +44,9 @@ namespace EDocsLog {
                 throw new ArgumentException("Sql event expected");
 
             var ev = new SqlEvent(raw);
-            ev.ConnectionIndex = Convert.ToInt32(raw.Header.Values[ValueKeys.Index]);
+            
+            string pool = raw.Header.Values[ValueKeys.Index];
+            ev.ConnectionIndex = string.IsNullOrEmpty(pool) ? -1 : Convert.ToInt32(pool);
             ev.IsNew = raw.Header.Values[ValueKeys.IsNew];
 
             // TODO: fucking edocs... Body is sometimes missing...
@@ -128,37 +131,31 @@ namespace EDocsLog {
     }
 
     public class SqlHeaderRule : SqlBaseRule {
-        
-        protected override RuleResult DoApply(string line) {
-            return base.DoApply(line);
-        }
         protected override string GetPattern() {
             // sample line:
             // DOCSSQL: [0F050918] SQLObject at 0F1E45F8 acquired existing connection from pool #1  -- from pool
             // DOCSSQL: [13C59BC0] SQLObject at 11378CE0 acquired new connection for existing Pool #6 -- new created
-            return @"DOCSSQL: \[(?<key>[0-9A-F]{8})\] SQLObject at ([0-9A-F]{8}) acquired (existing|new).+ool #([\d])";
+            // DOCSSQL: [19EA6BC0] SQLObject at 1E81E258 acquired new connection outside of Pool
+            // and it can be in the middle of the line...
+            return @"DOCSSQL: \[(?<key>[0-9A-F]{8})\] SQLObject at (?<sec>[0-9A-F]{8}) acquired (?<isNew>existing|new) connection (from|for existing|outside of) \b[Pp]ool(?: #(?<pool>\d{1,5}))?";
         }
         protected override RuleResult ProcessMatch(Match match) {
             return new RuleResult { 
                 EventType = EventType.Sql, LineType = LineType.Header, Key = match.Groups["key"].Value,
                 Values = new Dictionary<string, string>() { 
-                    { ValueKeys.Sec, match.Groups[1].Value },  
-                    { ValueKeys.IsNew, (match.Groups[2].Value == "new").ToString() },
-                    { ValueKeys.Index, match.Groups[3].Value } }
+                    { ValueKeys.Sec, match.Groups["sec"].Value },  
+                    { ValueKeys.IsNew, (match.Groups["isNew"].Value == "new").ToString() },
+                    { ValueKeys.Index, match.Groups["pool"].Value } }
             };
         }
     }
 
     public class SqlBodyRule : SqlBaseRule {
         const int MaxBodySize = 5;
-
-        protected override RuleResult DoApply(string line) {
-            return base.DoApply(line);
-        }
         protected override string GetPattern() {
             // sample line:
             // ********** 09:33:17.392  [13C595F0] DOCSSQL: EXECute SQL Statement on Library:MYLIB - MYDB  (Oracle7) **********
-            return @"^\*+ (?<time>\d\d\:\d\d\:\d\d\.\d{3})  \[(?<key>[0-9A-F]{8})\] DOCSSQL: EXECute SQL Statement.+$";
+            return @"^\*{10} (?<time>\d\d\:\d\d\:\d\d\.\d{3})  \[(?<key>[0-9A-F]{8})\] DOCSSQL: EXECute SQL Statement on Library:";
         }
         protected override RuleResult ProcessMatch(Match match) {
             RuleResult result = CreateResult(LineType.Body, match.Groups["key"].Value);
@@ -172,7 +169,7 @@ namespace EDocsLog {
         protected abstract string[] StartsWith { get; }
         protected override RuleResult DoApply(string line) {
             foreach(var sw in StartsWith) {
-                if(line.StartsWith(sw))
+                if(line.StartsWith(sw, StringComparison.Ordinal))
                     return CreateResult(LineType.Body);
             }
             return CreateResult(LineType.Unknown);
@@ -246,9 +243,6 @@ namespace EDocsLog {
     /// Various notification statements, we take into account, but which are rather useless
     /// </summary>
     public class SqlBodyNotifyRule : SqlBaseRule {
-        protected override RuleResult DoApply(string line) {
-            return base.DoApply(line);
-        }
         protected override string GetPattern() {
             // sample lines:
             // ********** 15:01:02.787  [0F050918] DOCSSQL: Performing CANCEL on Library:MYLIB - MYDB  (Oracle7) **********
@@ -259,7 +253,7 @@ namespace EDocsLog {
             // ********** 15:54:12.066  [00B97940] DOCSSQL: Executing saved batched commands on Library:MYLIB - MYDB  (Oracle7) **********
             // ********** 15:54:12.066  [00B97940] DOCSSQL: Preparing long data on Library:MYLIB - MYDB  (Oracle7) **********
             // ********** 15:54:12.066  [00B97940] DOCSSQL: Running SQLExecDirect on Library:MYLIB - MYDB  (Oracle7) **********
-            return @"^\*+ (?<time>\d\d\:\d\d\:\d\d\.\d{3})  \[(?<key>[0-9A-F]{8})\] DOCSSQL: (Performing CANCEL|DOCSODBC\:\:Batched commands|performing COMMIT|Adding batch command|Executing saved batched commands|Preparing long data|Running SQLExecDirect).+$";
+            return @"^\*{10} (?<time>\d\d\:\d\d\:\d\d\.\d{3})  \[(?<key>[0-9A-F]{8})\] DOCSSQL: (Performing CANCEL|DOCSODBC\:\:Batched commands|performing COMMIT|Adding batch command|Executing saved batched commands|Preparing long data|Running SQLExecDirect)";
         }
         protected override RuleResult ProcessMatch(Match match) {
             RuleResult result = CreateResult(LineType.Body, match.Groups["key"].Value);
@@ -269,10 +263,6 @@ namespace EDocsLog {
     }
 
     public abstract class SqlBodyTimerBaseRule : SqlBaseRule {
-        protected override RuleResult DoApply(string line) {
-            return base.DoApply(line);
-        }
-
         private static string GetDuration(string matchDuration) {
             // sample matchDuration:
             // 0 milliseconds
@@ -284,9 +274,8 @@ namespace EDocsLog {
                 duration = "0." + duration.PadLeft(3, '0');
             return duration;
         }
-
         protected override RuleResult ProcessMatch(Match match) {
-            string matchDuration = match.Groups[1].Value;
+            string matchDuration = match.Groups["dur"].Value;
             string duration = GetDuration(matchDuration);
 
             RuleResult result = CreateResult(LineType.Body, match.Groups["key"].Value);
@@ -301,7 +290,7 @@ namespace EDocsLog {
             // TIMER:   [105277B8] ODBCHandle::ReadItem(): 0 milliseconds  Fetched first row
             // TIMER:   [10528070] ODBCHandle::ReadItem(): 21.860 seconds  Fetched first row
             // note: sometimes another log entry appears in front of "Fetch first...", so we are not checking to the end of line
-            return @"^TIMER:   \[(?<key>[0-9A-F]{8})\] ODBCHandle::ReadItem\(\)\: (\d+ milliseconds|\d+\.\d+ seconds)";
+            return @"^TIMER:   \[(?<key>[0-9A-F]{8})\] ODBCHandle::ReadItem\(\)\: (?<dur>\d{1,3} milliseconds|\d{1,7}\.\d{3} seconds)";
         }
     }
 
@@ -310,7 +299,7 @@ namespace EDocsLog {
             // sample lines:
             // TIMER:   [105277B8] ODBCHandle::IssueCommand(): 0 milliseconds  
             // TIMER:   [10528070] ODBCHandle::IssueCommand(): 3.765 seconds  
-            return @"^TIMER:   \[(?<key>[0-9A-F]{8})\] ODBCHandle::IssueCommand\(\)\: (\d+ milliseconds|\d+\.\d+ seconds)";
+            return @"^TIMER:   \[(?<key>[0-9A-F]{8})\] ODBCHandle::IssueCommand\(\)\: (?<dur>\d{1,3} milliseconds|\d{1,7}\.\d{3} seconds)";
         }
     }
 
@@ -325,7 +314,7 @@ namespace EDocsLog {
             // DOCSSQL: [00B97940] ODBCHandle::IssueCommand(): Statement returned results.  32 rows per fetch.  11232 bytes allocated for result sets.
             // DOCSSQL: [10528070] ODBCHandle::ClearResults(): 23 row(s) fetched
             // DOCSSQL: [00B97940] ODBCHandle::BatchExecute(): Batched command #1 affected 1 row(s)
-            return @"^DOCSSQL: \[(?<key>[0-9A-F]{8})\] ODBCHandle::.+$";
+            return @"^DOCSSQL: \[(?<key>[0-9A-F]{8})\] ODBCHandle::\w";
         }
         protected override RuleResult ProcessMatch(Match match) {
             return CreateResult(LineType.Body, match.Groups["key"].Value);
@@ -333,18 +322,20 @@ namespace EDocsLog {
     }
 
     public class SqlFooterRule : SqlBaseRule {
-        protected override RuleResult DoApply(string line) {
-            return base.DoApply(line);
-        }
         protected override string GetPattern() {
             // sample line:
             // DOCSSQL: [13C59BC0] SQLObject at 11378CE0 released connection back to pool
-            return @"DOCSSQL: \[(?<key>[0-9A-F]{8})\] SQLObject at ([0-9A-F]{8}) released";
+            // DOCSSQL: [069BF3D0] SQLObject at 4125E9E0 released connection
+            // not necessarily the entire line. may appear in the middle
+            return @"DOCSSQL: \[(?<key>[0-9A-F]{8})\] SQLObject at (?<sec>[0-9A-F]{8}) released \b(connection|connection back to pool)";
         }
         protected override RuleResult ProcessMatch(Match match) {
             RuleResult result = CreateResult(LineType.Footer, match.Groups["key"].Value);
-            result.Values = new Dictionary<string, string>() { { ValueKeys.Sec, match.Groups[1].Value } }; 
+            result.Values = new Dictionary<string, string>() { { ValueKeys.Sec, match.Groups["sec"].Value } }; 
             return result;
         }
     }
+
+    // more lines to process:
+    // TIMER:   ORAODBCHandle::ORAODBCHandle(): 235 milliseconds  Connected to database
 }

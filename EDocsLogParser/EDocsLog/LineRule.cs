@@ -61,7 +61,9 @@ namespace EDocsLog {
             if(string.IsNullOrWhiteSpace(line))
                 return CreateResult(LineType.Empty);
 
-            var match = Regex.Match(line, Pattern, RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            string pattern = Pattern;
+            var match = Regex.Match(line, pattern, 
+                RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
             if(match.Success)
                 return ProcessMatch(match);
 

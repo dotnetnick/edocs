@@ -40,6 +40,17 @@ namespace EDocsLog {
                 return fLines;
             }
         }
+
+        public int LineCount {
+            get {
+                return fLines == null ? 0 : fLines.Length;
+            }
+        }
+
+        public void FreeLine(int index) {
+            if(index >= 0 && index < LineCount)
+                fLines[index] = null;
+        }
         
         public string[] ReadAllLines() {
             // let it fail if the file doesn't exist

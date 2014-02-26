@@ -38,6 +38,24 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
@@ -55,6 +73,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="TestHelper.cs" />
+    <Compile Include="UnitTestIntervals.cs" />
     <Compile Include="UnitTestEventProcessor.cs" />
     <Compile Include="UnitTestParser.cs" />
     <Compile Include="UnitTestLog.cs" />
@@ -73,9 +92,13 @@
     <None Include="TestLogs\canceled.log" />
     <None Include="TestLogs\double_nested.log" />
     <None Include="TestLogs\error.log" />
+    <None Include="TestLogs\HeaderInMiddle.log" />
     <None Include="TestLogs\inner_sql.log" />
+    <None Include="TestLogs\OutsideOfPool.log" />
     <None Include="TestLogs\sample.log" />
     <None Include="TestLogs\single.log" />
+    <None Include="TestLogs\SmartFooter.log" />
+    <None Include="TestLogs\SmartFooter2.log" />
     <None Include="TestLogs\two.log" />
   </ItemGroup>
   <ItemGroup>
