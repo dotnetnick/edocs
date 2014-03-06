@@ -1,11 +1,11 @@
-#region Copyright (c) 2013 Nick Khorin
+#region Copyright (c) 2014 Nick Khorin
 /*
 {*******************************************************************}
 {                                                                   }
 {       Tools and examples for OpenText eDOCS DM                    }
 {       by Nick Khorin                                              }
 {                                                                   }
-{       Copyright (c) 2013 Nick Khorin                              }
+{       Copyright (c) 2013-2014 Nick Khorin                         }
 {       http://softinclinations.blogspot.com                        }
 {       ALL RIGHTS RESERVED                                         }
 {                                                                   }
@@ -16,15 +16,13 @@
 {                                                                   }
 {*******************************************************************}
 */
-#endregion Copyright (c) 2013 Nick Khorin
+#endregion Copyright (c) 2014 Nick Khorin
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Collections.Generic;
 
 namespace EDocsLog {
     public static class EventFilters {

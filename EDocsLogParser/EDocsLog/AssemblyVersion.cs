@@ -23,8 +23,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EDocsLogTests {
-    public class TestHelper {
-        public const string TestLogPath = @"..\..\TestLogs\";
+namespace EDocsLog {
+    public static class AssemblyVersion {
+        public const string AssemblyCopyright = "Copyright (c) 2013-2014 Nick Khorin";
+        public const string Version = "1.0.4.0";
+        public const string FileVersion = "1.0.4.0";
     }
 }

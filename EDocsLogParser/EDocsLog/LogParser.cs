@@ -1,11 +1,11 @@
-﻿#region Copyright (c) 2013 Nick Khorin
+﻿#region Copyright (c) 2014 Nick Khorin
 /*
 {*******************************************************************}
 {                                                                   }
 {       Tools and examples for OpenText eDOCS DM                    }
 {       by Nick Khorin                                              }
 {                                                                   }
-{       Copyright (c) 2013 Nick Khorin                              }
+{       Copyright (c) 2013-2014 Nick Khorin                         }
 {       http://softinclinations.blogspot.com                        }
 {       ALL RIGHTS RESERVED                                         }
 {                                                                   }
@@ -16,15 +16,14 @@
 {                                                                   }
 {*******************************************************************}
 */
-#endregion Copyright (c) 2013 Nick Khorin
-using EDocsLog.Utils;
+#endregion Copyright (c) 2014 Nick Khorin
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using EDocsLog.Utils;
 
 namespace EDocsLog {
     public class LogParser {

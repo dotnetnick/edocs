@@ -1,11 +1,11 @@
-﻿#region Copyright (c) 2013 Nick Khorin
+﻿#region Copyright (c) 2014 Nick Khorin
 /*
 {*******************************************************************}
 {                                                                   }
 {       Tools and examples for OpenText eDOCS DM                    }
 {       by Nick Khorin                                              }
 {                                                                   }
-{       Copyright (c) 2013 Nick Khorin                              }
+{       Copyright (c) 2013-2014 Nick Khorin                         }
 {       http://softinclinations.blogspot.com                        }
 {       ALL RIGHTS RESERVED                                         }
 {                                                                   }
@@ -16,7 +16,7 @@
 {                                                                   }
 {*******************************************************************}
 */
-#endregion Copyright (c) 2013 Nick Khorin
+#endregion Copyright (c) 2014 Nick Khorin
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -24,12 +24,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UnitTestProject1")]
+[assembly: AssemblyTitle("EDocsLogTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("UnitTestProject1")]
-[assembly: AssemblyCopyright("Copyright © Nick Khorin 2013")]
+[assembly: AssemblyProduct("EDocsLogTests")]
+[assembly: AssemblyCopyright(EDocsLog.AssemblyVersion.AssemblyCopyright)]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion(EDocsLog.AssemblyVersion.Version)]
+[assembly: AssemblyFileVersion(EDocsLog.AssemblyVersion.FileVersion)]

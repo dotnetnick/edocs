@@ -1,11 +1,11 @@
-﻿#region Copyright (c) 2013 Nick Khorin
+﻿#region Copyright (c) 2014 Nick Khorin
 /*
 {*******************************************************************}
 {                                                                   }
 {       Tools and examples for OpenText eDOCS DM                    }
 {       by Nick Khorin                                              }
 {                                                                   }
-{       Copyright (c) 2013 Nick Khorin                              }
+{       Copyright (c) 2013-2014 Nick Khorin                         }
 {       http://softinclinations.blogspot.com                        }
 {       ALL RIGHTS RESERVED                                         }
 {                                                                   }
@@ -16,12 +16,11 @@
 {                                                                   }
 {*******************************************************************}
 */
-#endregion Copyright (c) 2013 Nick Khorin
+#endregion Copyright (c) 2014 Nick Khorin
 using System;
-using System.Globalization;
-using EDocsLog;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using EDocsLog;
 
 namespace EDocsLogTests {
     [TestClass]
@@ -229,6 +228,26 @@ namespace EDocsLogTests {
             Assert.IsInstanceOfType(parser.Events[0], typeof(SqlEvent));
             var ev = (SqlEvent)parser.Events[0];
             Assert.AreEqual(0, ev.Queries.Count);
+        }
+
+        [TestMethod]
+        public void TestParseDM521() {
+            string file = TestHelper.TestLogPath + "DM521.log";
+            var log = new LogFile { FileName = file };
+            var parser = new LogParser { Log = log };
+            parser.Parse();
+
+            Assert.AreEqual(1, parser.RawEvents.Count);
+            Assert.AreEqual(1, parser.Events.Count);
+            Assert.IsInstanceOfType(parser.Events[0], typeof(SqlEvent));
+            var ev = (SqlEvent)parser.Events[0];
+            Assert.AreEqual(3, ev.Queries.Count);
+            var expectedCommand = @"SELECT DOCSADM.PEOPLE.LAST_LOGIN_TIME, DOCSADM.PEOPLE.LAST_LOGIN_DATE, DOCSADM.PEOPLE.USER_ID FROM DOCSADM.PEOPLE WHERE DOCSADM.PEOPLE.USER_ID='user'";
+            var expectedRead = "0.000";
+            var expectedIssue = "0.016";
+            Assert.AreEqual(expectedCommand, ev.Queries[1].Command);
+            Assert.AreEqual(expectedRead, ev.Queries[1].DurationReadItem);
+            Assert.AreEqual(expectedIssue, ev.Queries[1].DurationIssueCommand);
         }
     }
 }

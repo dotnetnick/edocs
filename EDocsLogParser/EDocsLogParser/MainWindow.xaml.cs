@@ -1,11 +1,11 @@
-﻿#region Copyright (c) 2013 Nick Khorin
+﻿#region Copyright (c) 2014 Nick Khorin
 /*
 {*******************************************************************}
 {                                                                   }
 {       Tools and examples for OpenText eDOCS DM                    }
 {       by Nick Khorin                                              }
 {                                                                   }
-{       Copyright (c) 2013 Nick Khorin                              }
+{       Copyright (c) 2013-2014 Nick Khorin                         }
 {       http://softinclinations.blogspot.com                        }
 {       ALL RIGHTS RESERVED                                         }
 {                                                                   }
@@ -16,23 +16,14 @@
 {                                                                   }
 {*******************************************************************}
 */
-#endregion Copyright (c) 2013 Nick Khorin
+#endregion Copyright (c) 2014 Nick Khorin
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Reflection;
+using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace EDocsLog {
     /// <summary>
@@ -41,6 +32,8 @@ namespace EDocsLog {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
+            Title = string.Format("eDOCS DM Server Log Parser v{0} (c) Nick Khorin", 
+                Assembly.GetExecutingAssembly().GetName().Version.ToString());
         }
 
         string InputPath { get; set; }
@@ -116,7 +109,7 @@ namespace EDocsLog {
             lblStatus.Text = string.Empty;
             btnFolder.IsEnabled = true;
             btnStart.IsEnabled = true;
-            MessageBox.Show("Done.");
+            MessageBox.Show(this, "Done.");
         }
 
         private void btnFolder_Click(object sender, RoutedEventArgs e) {

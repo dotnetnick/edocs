@@ -1,0 +1,40 @@
+
+DOCSSQL: [06C0D9B0] SQLObject at 53930450 acquired existing connection from pool
+DOCSSQL: [06C0D9B0] Oracle7Handle::ClearResults(): 1 row(s) fetched
+
+********** 02:00:06.443  [06C0D9B0] DOCSSQL: EXECute SQL Statement on MyDB  (Oracle7) **********
+
+Autocommit is ON
+
+STATEMENT:
+SELECT DOCSADM.PEOPLE.USER_PASSWORD, DOCSADM.PEOPLE.USER_ID FROM DOCSADM.PEOPLE WHERE DOCSADM.PEOPLE.USER_ID='user'
+
+DOCSSQL: [06C0D9B0] Oracle7Handle::IssueCommand(): 32 row(s) per fetch
+TIMER: [06C0D9B0] Oracle7Handle::ReadItem(): 0 milliseconds  FETCHed first row
+DOCSSQL: [06C0D9B0] Oracle7Handle::IssueCommand(): Statement returned results
+TIMER: [06C0D9B0] Oracle7Handle::IssueCommand(): 0 milliseconds  
+DOCSSQL: [06C0D9B0] Oracle7Handle::ClearResults(): 1 row(s) fetched
+
+********** 02:00:06.459  [06C0D9B0] DOCSSQL: EXECute SQL Statement on MyDB  (Oracle7) **********
+
+Autocommit is ON
+
+STATEMENT:
+SELECT DOCSADM.PEOPLE.LAST_LOGIN_TIME, DOCSADM.PEOPLE.LAST_LOGIN_DATE, DOCSADM.PEOPLE.USER_ID FROM DOCSADM.PEOPLE WHERE DOCSADM.PEOPLE.USER_ID='user'
+
+DOCSSQL: [06C0D9B0] Oracle7Handle::IssueCommand(): 32 row(s) per fetch
+TIMER: [06C0D9B0] Oracle7Handle::ReadItem(): 0 milliseconds  FETCHed first row
+DOCSSQL: [06C0D9B0] Oracle7Handle::IssueCommand(): Statement returned results
+TIMER: [06C0D9B0] Oracle7Handle::IssueCommand(): 16 milliseconds  
+DOCSSQL: [06C0D9B0] Oracle7Handle::ClearResults(): 1 row(s) fetched
+
+********** 02:00:06.475  [06C0D9B0] DOCSSQL: EXECute SQL Statement on MyDB  (Oracle7) **********
+
+Autocommit is ON
+
+STATEMENT:
+UPDATE DOCSADM.PEOPLE SET LAST_LOGIN_TIME=TO_DATE('02/01/2014 02:00:06','MM/DD/YYYY HH24:MI:SS'),LAST_LOGIN_DATE=TO_DATE('02/01/2014','MM/DD/YYYY') WHERE USER_ID='user'
+
+DOCSSQL: [06C0D9B0] Oracle7Handle::IssueCommand(): Statement affected 1 row(s)
+TIMER: [06C0D9B0] Oracle7Handle::IssueCommand(): 0 milliseconds  
+DOCSSQL: [06C0D9B0] SQLObject at 53930450 released connection back to pool

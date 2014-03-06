@@ -1,11 +1,11 @@
-#region Copyright (c) 2013 Nick Khorin
+#region Copyright (c) 2014 Nick Khorin
 /*
 {*******************************************************************}
 {                                                                   }
 {       Tools and examples for OpenText eDOCS DM                    }
 {       by Nick Khorin                                              }
 {                                                                   }
-{       Copyright (c) 2013 Nick Khorin                              }
+{       Copyright (c) 2013-2014 Nick Khorin                         }
 {       http://softinclinations.blogspot.com                        }
 {       ALL RIGHTS RESERVED                                         }
 {                                                                   }
@@ -16,15 +16,13 @@
 {                                                                   }
 {*******************************************************************}
 */
-#endregion Copyright (c) 2013 Nick Khorin
+#endregion Copyright (c) 2014 Nick Khorin
 using System;
-using System.Collections.Generic;        
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Globalization;
 using System.Xml.Serialization;
-using EDocsLog.Utils;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace EDocsLog {
     public static class SqlEventFactory {
@@ -153,9 +151,11 @@ namespace EDocsLog {
     public class SqlBodyRule : SqlBaseRule {
         const int MaxBodySize = 5;
         protected override string GetPattern() {
-            // sample line:
+            // sample line DM 5.3.1:
             // ********** 09:33:17.392  [13C595F0] DOCSSQL: EXECute SQL Statement on Library:MYLIB - MYDB  (Oracle7) **********
-            return @"^\*{10} (?<time>\d\d\:\d\d\:\d\d\.\d{3})  \[(?<key>[0-9A-F]{8})\] DOCSSQL: EXECute SQL Statement on Library:";
+            // DM 5.2:
+            // ********** 02:00:06.443  [06C0D9B0] DOCSSQL: EXECute SQL Statement on MyDB  (Oracle7) **********
+            return @"^\*{10} (?<time>\d\d\:\d\d\:\d\d\.\d{3})  \[(?<key>[0-9A-F]{8})\] DOCSSQL: EXECute SQL Statement on ";
         }
         protected override RuleResult ProcessMatch(Match match) {
             RuleResult result = CreateResult(LineType.Body, match.Groups["key"].Value);
@@ -290,7 +290,9 @@ namespace EDocsLog {
             // TIMER:   [105277B8] ODBCHandle::ReadItem(): 0 milliseconds  Fetched first row
             // TIMER:   [10528070] ODBCHandle::ReadItem(): 21.860 seconds  Fetched first row
             // note: sometimes another log entry appears in front of "Fetch first...", so we are not checking to the end of line
-            return @"^TIMER:   \[(?<key>[0-9A-F]{8})\] ODBCHandle::ReadItem\(\)\: (?<dur>\d{1,3} milliseconds|\d{1,7}\.\d{3} seconds)";
+            // DM 5.2.1 Oracle:
+            // TIMER: [06C0D9B0] Oracle7Handle::ReadItem(): 0 milliseconds  FETCHed first row
+            return @"^TIMER:\s{1,3}\[(?<key>[0-9A-F]{8})\] \w{3,7}Handle::ReadItem\(\)\: (?<dur>\d{1,3} milliseconds|\d{1,7}\.\d{3} seconds)";
         }
     }
 
@@ -299,7 +301,9 @@ namespace EDocsLog {
             // sample lines:
             // TIMER:   [105277B8] ODBCHandle::IssueCommand(): 0 milliseconds  
             // TIMER:   [10528070] ODBCHandle::IssueCommand(): 3.765 seconds  
-            return @"^TIMER:   \[(?<key>[0-9A-F]{8})\] ODBCHandle::IssueCommand\(\)\: (?<dur>\d{1,3} milliseconds|\d{1,7}\.\d{3} seconds)";
+            // DM 5.2.1:
+            // TIMER: [06C0D9B0] Oracle7Handle::IssueCommand(): 16 milliseconds
+            return @"^TIMER:\s{1,3}\[(?<key>[0-9A-F]{8})\] \w{3,7}Handle::IssueCommand\(\)\: (?<dur>\d{1,3} milliseconds|\d{1,7}\.\d{3} seconds)";
         }
     }
 
@@ -314,7 +318,9 @@ namespace EDocsLog {
             // DOCSSQL: [00B97940] ODBCHandle::IssueCommand(): Statement returned results.  32 rows per fetch.  11232 bytes allocated for result sets.
             // DOCSSQL: [10528070] ODBCHandle::ClearResults(): 23 row(s) fetched
             // DOCSSQL: [00B97940] ODBCHandle::BatchExecute(): Batched command #1 affected 1 row(s)
-            return @"^DOCSSQL: \[(?<key>[0-9A-F]{8})\] ODBCHandle::\w";
+            // DM 5.2.1 Oracle:
+            // DOCSSQL: [06C0D9B0] Oracle7Handle::IssueCommand(): 32 row(s) per fetch
+            return @"^DOCSSQL: \[(?<key>[0-9A-F]{8})\] \w{3,7}Handle::\w";
         }
         protected override RuleResult ProcessMatch(Match match) {
             return CreateResult(LineType.Body, match.Groups["key"].Value);

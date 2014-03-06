@@ -1,11 +1,11 @@
-﻿#region Copyright (c) 2013 Nick Khorin
+﻿#region Copyright (c) 2014 Nick Khorin
 /*
 {*******************************************************************}
 {                                                                   }
 {       Tools and examples for OpenText eDOCS DM                    }
 {       by Nick Khorin                                              }
 {                                                                   }
-{       Copyright (c) 2013 Nick Khorin                              }
+{       Copyright (c) 2013-2014 Nick Khorin                         }
 {       http://softinclinations.blogspot.com                        }
 {       ALL RIGHTS RESERVED                                         }
 {                                                                   }
@@ -16,10 +16,11 @@
 {                                                                   }
 {*******************************************************************}
 */
-#endregion Copyright (c) 2013 Nick Khorin
+#endregion Copyright (c) 2014 Nick Khorin
 using System;
-using EDocsLog;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using EDocsLog;
 
 namespace EDocsLogTests {
     [TestClass]
@@ -31,6 +32,22 @@ namespace EDocsLogTests {
             var log = new LogFile { FileName = file };
             string[] lines = log.Lines;
             Assert.AreEqual(expectedCount, lines.Length);
+        }
+
+        [TestMethod]
+        public void TestGetEncodingUnicode() {
+            string file = TestHelper.TestLogPath + "single.log";
+            var log = new LogFile { FileName = file };
+            var result = log.GetEncoding();
+            Assert.AreEqual(Encoding.Unicode, result);
+        }
+
+        [TestMethod]
+        public void TestGetEncodingAscii() {
+            string file = TestHelper.TestLogPath + "DM521.log";
+            var log = new LogFile { FileName = file };
+            var result = log.GetEncoding();
+            Assert.AreEqual(Encoding.ASCII, result);
         }
     }
 }

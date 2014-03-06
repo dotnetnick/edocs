@@ -90,6 +90,7 @@
     <None Include="TestLogs\all_statements.log" />
     <None Include="TestLogs\batch.log" />
     <None Include="TestLogs\canceled.log" />
+    <None Include="TestLogs\DM521.log" />
     <None Include="TestLogs\double_nested.log" />
     <None Include="TestLogs\error.log" />
     <None Include="TestLogs\HeaderInMiddle.log" />
